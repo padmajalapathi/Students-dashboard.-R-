@@ -1,0 +1,81 @@
+library(shiny)
+
+
+ui <- fluidPage(
+  titlePanel("Student Dashboard"),
+  sidebarLayout(
+    sidebarPanel(
+      textInput("reguser","Register Username"),
+      passwordInput("regpass","Register Password"),
+      actionButton("register","Register"),
+      hr(),
+      textInput("user","Username"),
+      passwordInput("pass","Password"),
+      actionButton("login","Login"),
+      hr(),
+      selectInput("menu","Dashboard Menu",
+                  c("View Profile",
+                    "Student Details",
+                    "Course Details",
+                    "Logout"))
+    ),
+    mainPanel(
+      verbatimTextOutput("result")
+    )
+  )
+)
+
+
+server <- function(input, output, session){
+
+
+  user <- reactiveVal("")
+  pass <- reactiveVal("")
+
+
+  observeEvent(input$register,{
+    user(input$reguser)
+    pass(input$regpass)
+    output$result <- renderText("Registration Successful")
+  })
+
+
+  observeEvent(input$login,{
+    if(input$user==user() && input$pass==pass()){
+      output$result <- renderText("Login Successful")
+    } else{
+      output$result <- renderText("Invalid Username or Password")
+    }
+  })
+
+
+  observe({
+    if(input$menu=="View Profile"){
+      output$result <- renderText(
+        paste("Username:", user())
+      )
+    }
+
+
+    if(input$menu=="Student Details"){
+      output$result <- renderText(
+        "Name: Padma\nDepartment: BCA\nYear: Final Year"
+      )
+    }
+
+
+    if(input$menu=="Course Details"){
+      output$result <- renderText(
+        "Courses:\n1. Python\n2. Java\n3. R Programming\n4. DBMS"
+      )
+    }
+
+
+    if(input$menu=="Logout"){
+      output$result <- renderText("Logged Out Successfully")
+    }
+  })
+}
+
+
+shinyApp(ui, server)
